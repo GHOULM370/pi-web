@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useI18n } from "@/lib/i18n";
 
 export interface ToolEntry {
   name: string;
@@ -27,15 +28,15 @@ interface Props {
   onClose: () => void;
 }
 
-const PRESETS: { id: ToolPreset; label: string; desc: string; tools: string[] }[] = [
-  { id: "none",    label: "Off",  desc: "No tools",                                tools: PRESET_NONE },
-  { id: "default", label: "Low",  desc: "read · bash · edit · write",              tools: PRESET_DEFAULT },
-  { id: "full",    label: "High", desc: "read · bash · edit · write · grep · find · ls", tools: PRESET_FULL },
-];
-
 export function ToolPanel({ tools, onPreset, onClose }: Props) {
+  const { t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
   const current = getPresetFromTools(tools);
+  const presets: { id: ToolPreset; label: string; desc: string; tools: string[] }[] = [
+    { id: "none",    label: "Off",  desc: t("input.tools.noTools"), tools: PRESET_NONE },
+    { id: "default", label: "Low",  desc: "read · bash · edit · write", tools: PRESET_DEFAULT },
+    { id: "full",    label: "High", desc: "read · bash · edit · write · grep · find · ls", tools: PRESET_FULL },
+  ];
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -47,7 +48,7 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose]);
 
-  const currentIndex = PRESETS.findIndex(p => p.id === current);
+  const currentIndex = presets.findIndex(p => p.id === current);
 
   return (
     <div
@@ -77,7 +78,7 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
         padding: 3,
         gap: 3,
       }}>
-        {PRESETS.map((preset) => {
+        {presets.map((preset) => {
           const isActive = current === preset.id;
           return (
             <button
@@ -104,13 +105,13 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
 
       {/* Description of current selection */}
       <div style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5 }}>
-        {currentIndex >= 0 ? PRESETS[currentIndex].desc || "No tools enabled" : ""}
-        {current === "none" && <span> — agent will not use any tools</span>}
+        {currentIndex >= 0 ? presets[currentIndex].desc || t("input.tools.noToolsEnabled") : ""}
+        {current === "none" && <span>{t("input.tools.noToolsEffect")}</span>}
       </div>
 
       {/* Track bar */}
       <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        {PRESETS.map((_, i) => (
+        {presets.map((_, i) => (
           <div
             key={i}
             style={{
@@ -123,7 +124,7 @@ export function ToolPanel({ tools, onPreset, onClose }: Props) {
       </div>
 
       <div style={{ fontSize: 10, color: "var(--text-dim)" }}>
-        takes effect on next turn
+        {t("input.tools.nextTurn")}
       </div>
     </div>
   );

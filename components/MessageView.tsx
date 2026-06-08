@@ -7,6 +7,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useTheme } from "@/hooks/useTheme";
+import { useI18n } from "@/lib/i18n";
 import type {
   AgentMessage,
   UserMessage,
@@ -89,6 +90,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
   prevAssistantEntryId?: string;
   onEditContent?: (content: string) => void;
 }) {
+  const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -182,7 +184,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
           }}>
             <button
               onClick={copyContent}
-              title="Copy message"
+              title={t("message.copyMessage")}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
                 padding: "3px 8px", height: 22,
@@ -207,7 +209,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
               )}
-              {copied ? "Copied" : "Copy"}
+              {copied ? t("common.copied") : t("common.copy")}
             </button>
           </div>
           {(canFork || canNavigate) && (
@@ -220,7 +222,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
               {canNavigate && (
                 <button
                   onClick={() => { onNavigate!(prevAssistantEntryId!); onEditContent?.(content); }}
-                  title="Edit from here — branches within this session"
+                  title={t("message.editFromHereTitle")}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
@@ -239,14 +241,14 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                     <polyline points="15 10 20 15 15 20" />
                     <path d="M4 4v7a4 4 0 0 0 4 4h12" />
                   </svg>
-                  Edit from here
+                  {t("message.editFromHere")}
                 </button>
               )}
               {canFork && (
                 <button
                   onClick={() => { onFork!(entryId!); }}
                   disabled={forking}
-                  title={forking ? "Creating new session…" : "New session — creates an independent copy from here"}
+                  title={forking ? t("message.creatingSessionTitle") : t("message.newSessionTitle")}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
@@ -267,7 +269,7 @@ function UserMessageView({ message, entryId, onFork, forking, onNavigate, prevAs
                     <circle cx="6" cy="18" r="3" />
                     <path d="M18 9a9 9 0 0 1-9 9" />
                   </svg>
-                  {forking ? "Creating…" : "New session"}
+                  {forking ? t("message.creatingSession") : t("message.newSession")}
                 </button>
               )}
             </div>
@@ -294,6 +296,7 @@ function AssistantMessageView({
   showTimestamp?: boolean;
   prevTimestamp?: number;
 }) {
+  const { t } = useI18n();
   const time = showTimestamp ? formatTime(message.timestamp) : null;
   const blocks = message.content ?? [];
   const [hovered, setHovered] = useState(false);
@@ -428,7 +431,7 @@ function AssistantMessageView({
             <>
 
               {est > 0 && (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text)" }} title="预估 token 数（流式接收中）">
+                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text)" }} title={t("message.estimatedTokens")}>
                   <span style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 11, fontWeight: 400 }}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="1.5" x2="5" y2="8.5" /><polyline points="2 6 5 8.5 8 6" />
@@ -461,13 +464,13 @@ function AssistantMessageView({
       }}>
         {message.usage && !isStreaming && (
           <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
-            {formatUsage(message.usage)}
+            {formatUsage(message.usage, t)}
           </div>
         )}
         {textContent && !isStreaming && (
           <button
             onClick={copyContent}
-            title="Copy message"
+            title={t("message.copyMessage")}
             style={{
               display: "flex", alignItems: "center", gap: 4,
               padding: "3px 8px", height: 22,
@@ -494,7 +497,7 @@ function AssistantMessageView({
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
             )}
-            {copied ? "Copied" : "Copy"}
+            {copied ? t("common.copied") : t("common.copy")}
           </button>
         )}
         {time && !isStreaming && (
@@ -566,6 +569,7 @@ function TextBlock({ block, isStreaming }: { block: TextContent; isStreaming?: b
 
 function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boolean }) {
   const { isDark } = useTheme();
+  const { t } = useI18n();
   const [showPreview, setShowPreview] = useState(false);
   const [svg, setSvg] = useState<string | null>(null);
   const [renderedKey, setRenderedKey] = useState("");
@@ -614,7 +618,7 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
     <button
       onClick={() => setShowPreview((v) => !v)}
       disabled={isStreaming}
-      title={isStreaming ? "Preview available after streaming" : (showPreview ? "Show Mermaid source" : "Preview Mermaid diagram")}
+      title={isStreaming ? t("message.previewAfterStreaming") : (showPreview ? t("message.showMermaidSource") : t("message.previewMermaid"))}
       style={{
         background: showPreview ? "var(--bg-selected)" : "none",
         border: "1px solid var(--border)",
@@ -625,7 +629,7 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
         padding: "1px 6px",
       }}
     >
-      {showPreview ? "Source" : "Preview"}
+      {showPreview ? t("common.source") : t("common.preview")}
     </button>
   );
 
@@ -635,9 +639,9 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
 
   const body =
     failedKey === currentKey ? (
-      <div className="mermaid-block mermaid-block-error">Invalid Mermaid diagram</div>
+      <div className="mermaid-block mermaid-block-error">{t("message.invalidMermaid")}</div>
     ) : !svg || renderedKey !== currentKey ? (
-      <div className="mermaid-block mermaid-block-loading" aria-label="Rendering Mermaid diagram" />
+      <div className="mermaid-block mermaid-block-loading" aria-label={t("message.renderingMermaid")} />
     ) : (
       <div
         className="mermaid-block"
@@ -677,6 +681,7 @@ function MermaidBlock({ code, isStreaming }: { code: string; isStreaming?: boole
 }
 
 function ThinkingBlock({ block, duration }: { block: ThinkingContent; duration?: number }) {
+  const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
   return (
     <div
@@ -703,7 +708,7 @@ function ThinkingBlock({ block, duration }: { block: ThinkingContent; duration?:
           textAlign: "left",
         }}
       >
-        <span>Thinking</span>
+        <span>{t("message.thinking")}</span>
         {duration !== undefined && (
           <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
         )}
@@ -728,7 +733,7 @@ function ThinkingBlock({ block, duration }: { block: ThinkingContent; duration?:
 }
 
 
-function ToolCallBlock({ block, result, isRunning, duration }: { block: ToolCallContent; result?: ToolResultMessage; isRunning?: boolean; duration?: number }) {
+function ToolCallBlock({ block, result, duration }: { block: ToolCallContent; result?: ToolResultMessage; isRunning?: boolean; duration?: number }) {
   const [expanded, setExpanded] = useState(false);
   const inputStr = JSON.stringify(block.input, null, 2);
 
@@ -818,6 +823,7 @@ function PairedResult({ text, isEmpty, isError }: {
   isEmpty: boolean;
   isError: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div
       style={{
@@ -841,7 +847,7 @@ function PairedResult({ text, isEmpty, isError }: {
           opacity: isEmpty ? 0.6 : 1,
         }}
       >
-        {isEmpty ? "(no output)" : text}
+        {isEmpty ? t("message.noOutput") : text}
       </pre>
     </div>
   );
@@ -871,11 +877,12 @@ function formatUsage(usage: {
   cacheRead: number;
   cacheWrite: number;
   cost: { total: number };
-}): string {
+}, t: (key: string, params?: Record<string, string | number>) => string): string {
   const parts = [];
-  if (usage.input) parts.push(`${usage.input.toLocaleString()} in`);
-  if (usage.output) parts.push(`${usage.output.toLocaleString()} out`);
-  if (usage.cacheRead) parts.push(`${usage.cacheRead.toLocaleString()} cache`);
+  if (usage.input) parts.push(t("message.usage.input", { value: usage.input.toLocaleString() }));
+  if (usage.output) parts.push(t("message.usage.output", { value: usage.output.toLocaleString() }));
+  if (usage.cacheRead) parts.push(t("message.usage.cacheRead", { value: usage.cacheRead.toLocaleString() }));
+  if (usage.cacheWrite) parts.push(t("message.usage.cacheWrite", { value: usage.cacheWrite.toLocaleString() }));
   if (usage.cost?.total) parts.push(`$${usage.cost.total.toFixed(4)}`);
   return parts.join(" · ");
 }
@@ -884,6 +891,7 @@ function formatUsage(usage: {
 
 function CodeBlock({ code, lang, headerAction }: { code: string; lang: string; headerAction?: ReactNode }) {
   const { isDark } = useTheme();
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -929,7 +937,7 @@ function CodeBlock({ code, lang, headerAction }: { code: string; lang: string; h
               fontSize: 11,
             }}
           >
-            {copied ? "copied" : "copy"}
+            {copied ? t("common.copied") : t("common.copy")}
           </button>
         </div>
       </div>
